@@ -1,0 +1,536 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Roles Enum
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+// User Status
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+  SUSPENDED
+}
+
+// Project Status
+enum ProjectStatus {
+  DRAFT
+  ACTIVE
+  SOLD_OUT
+  COMING_SOON
+  ARCHIVED
+}
+
+// Property Type
+enum PropertyType {
+  RESIDENTIAL
+  COMMERCIAL
+  AGRO
+  OFF_PLAN
+  LAND_BANKING
+}
+
+// Newsletter Status
+enum NewsletterStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
+// Subscription Status
+enum SubscriptionStatus {
+  ACTIVE
+  UNSUBSCRIBED
+  BOUNCED
+  PENDING
+}
+
+// User Model
+model User {
+  id            String     @id @default(uuid())
+  email         String     @unique
+  password      String?    // For credential auth
+  name          String?
+  avatar        String?
+  role          UserRole   @default(VIEWER)
+  status        UserStatus @default(PENDING)
+
+  // Project associations
+  projects      ProjectUser[]
+
+  // Content created
+  createdProjects   Project[]   @relation("ProjectCreatedBy")
+  updatedProjects   Project[]   @relation("ProjectUpdatedBy")
+  createdNewsletters Newsletter[] @relation("NewsletterCreatedBy")
+  updatedNewsletters Newsletter[] @relation("NewsletterUpdatedBy")
+
+  // Timestamps
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  lastLoginAt   DateTime?
+
+  @@map("users")
+}
+
+// Project Model (High-level developments)
+model Project {
+  id          String        @id @default(uuid())
+  slug        String        @unique
+  title       String
+  subtitle    String?
+  description String?        @db.Text
+  location    String
+  city        String
+  country     String        @default("Nigeria")
+
+  // Media
+  featuredImage String?
+  gallery       String[]     @default([])
+
+  // Status
+  status      ProjectStatus @default(DRAFT)
+
+  // Project details
+  launchDate  DateTime?
+  completionDate DateTime?
+  totalUnits  Int?
+  availableUnits Int?
+  priceRange  Json?        // { min: number, max: number, currency: string }
+
+  // Amenities
+  amenities   String[]     @default([])
+
+  // Relations
+  properties  Property[]
+  users       ProjectUser[]
+
+  // Audit
+  createdById String
+  createdBy   User         @relation("ProjectCreatedBy", fields: [createdById], references: [id])
+  updatedById String?
+  updatedBy   User?        @relation("ProjectUpdatedBy", fields: [updatedById], references: [id])
+
+  // Timestamps
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("projects")
+  @@index([status])
+  @@index([location])
+}
+
+// Project-User association with role
+model ProjectUser {
+  id        String   @id @default(uuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      String   @default("VIEWER") // ADMIN, EDITOR, VIEWER for this project
+
+  createdAt DateTime @default(now())
+
+  @@unique([projectId, userId])
+  @@map("project_users")
+}
+
+// Property Model (Individual listings)
+model Property {
+  id          String        @id @default(uuid())
+  slug        String        @unique
+
+  // Basic info
+  title       String
+  description String?        @db.Text
+  type        PropertyType
+
+  // Project relation
+  projectId   String
+  project     Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Location
+  address     String
+  unit        String?        // Unit number, flat number
+
+  // Pricing
+  price       Json           // { amount: number, currency: string, negotiable: boolean }
+
+  // Features
+  bedrooms    Int?
+  bathrooms   Int?
+  sqft        Int?
+
+  // Media
+  images      String[]       @default([])
+  floorPlan   String?
+  videoTour   String?
+
+  // Status
+  isAvailable Boolean        @default(true)
+  isFeatured  Boolean        @default(false)
+
+  // Amenities
+  features    String[]       @default([])
+
+  // Documents
+  documents   Json[]         @default([]) // [{ name, url, type }]
+
+  // SEO
+  metaTitle   String?
+  metaDescription String?
+
+  // Timestamps
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@map("properties")
+  @@index([projectId])
+  @@index([type])
+  @@index([isAvailable])
+  @@index([isFeatured])
+}
+
+// Newsletter Model
+model Newsletter {
+  id          String           @id @default(uuid())
+  slug        String           @unique
+
+  // Content
+  title       String
+  subject     String
+  excerpt     String?          @db.Text
+  content     String           @db.Text // HTML content
+
+  // Status workflow
+  status      NewsletterStatus @default(DRAFT)
+  scheduledAt DateTime?
+  publishedAt DateTime?
+
+  // Campaign data
+  sentCount   Int              @default(0)
+  openCount   Int              @default(0)
+  clickCount  Int              @default(0)
+
+  // Segments (who should receive)
+  segments    String[]         @default([]) // ["diaspora", "local", "vip"]
+
+  // Cover image
+  coverImage  String?
+
+  // Audit
+  createdById String
+  createdBy   User             @relation("NewsletterCreatedBy", fields: [createdById], references: [id])
+  updatedById String?
+  updatedBy   User?            @relation("NewsletterUpdatedBy", fields: [updatedById], references: [id])
+
+  // Timestamps
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@map("newsletters")
+  @@index([status])
+  @@index([publishedAt])
+}
+
+// Subscriber Model
+model Subscriber {
+  id              String             @id @default(uuid())
+  email           String             @unique
+  firstName       String?
+  lastName        String?
+  phone           String?
+  location        String?            // Country/City
+
+  // Preferences
+  preferences     Json               @default("{}") // { interests: [], frequency: "weekly" }
+
+  // Segments
+  segments        String[]           @default([]) // ["diaspora", "local", "vip", "agro-investor"]
+
+  // Status
+  status          SubscriptionStatus @default(PENDING)
+  confirmedAt     DateTime?
+  unsubscribedAt  DateTime?
+
+  // Engagement
+  lastOpenAt      DateTime?
+  openCount       Int                @default(0)
+
+  // Source tracking
+  source          String?            // "website", "landing-page", "referral"
+  utmCampaign     String?
+
+  // Token for unsubscribe/confirm
+  token           String             @unique @default(uuid())
+
+  // Timestamps
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@map("subscribers")
+  @@index([status])
+  @@index([segments])
+}
+
+// Email Log (for tracking)
+model EmailLog {
+  id            String   @id @default(uuid())
+  subscriberId  String?
+  newsletterId  String?
+
+  email         String
+  subject       String
+  status        String   // "sent", "delivered", "bounced", "opened", "clicked"
+
+  openedAt      DateTime?
+  clickedAt     DateTime?
+
+  metadata      Json?    // { ip, userAgent, links: [] }
+
+  createdAt     DateTime @default(now())
+
+  @@map("email_logs")
+  @@index([subscriberId])
+  @@index([newsletterId])
+  @@index([status])
+}
+
+// Chat Messages
+model ChatMessage {
+  id        String   @id @default(uuid())
+  sessionId String   // Anonymous session
+
+  // User info (if provided)
+  email     String?
+  name      String?
+  phone     String?
+
+  // Message
+  message   String   @db.Text
+  isFromBot Boolean  @default(false)
+
+  // Context
+  pageUrl   String?  // Which page they were on
+  intent    String?  // Classified intent
+
+  // Follow up
+  isLead    Boolean  @default(false)
+  notes     String?  @db.Text
+
+  createdAt DateTime @default(now())
+
+  @@map("chat_messages")
+  @@index([sessionId])
+  @@index([createdAt])
+}
+
+// Audit Log
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String?
+  action      String   // "CREATE", "UPDATE", "DELETE", "LOGIN", "PUBLISH"
+  entity      String   // "Project", "Property", "Newsletter", "User"
+  entityId    String?
+  oldData     Json?
+  newData     Json?
+  ipAddress   String?
+  userAgent   String?
+
+  createdAt   DateTime @default(now())
+
+  @@map("audit_logs")
+  @@index([userId])
+  @@index([action])
+  @@index([entity])
+}
+
+// WhatsApp Contact Model
+model WhatsAppContact {
+  id                String   @id @default(uuid())
+  phoneNumber       String   @unique // WhatsApp ID (e.g., "2348000000000")
+  name              String?
+  profilePicture    String?
+  status            String   @default("ACTIVE") // ACTIVE, BLOCKED, OPTED_OUT
+
+  // Conversation state
+  conversationState String   @default("IDLE") // IDLE, INQUIRY, BOOKING, FOLLOW_UP
+  lastMessageAt     DateTime @default(now())
+  messageCount      Int      @default(0)
+
+  // Lead qualification
+  isLead            Boolean  @default(false)
+  leadSource        String?  // "whatsapp", "website", "referral"
+  interestedIn      String[] @default([]) // ["residential", "agro", "commercial"]
+  budgetRange       String?  // "3M-10M", "10M-50M", "50M+"
+  location          String?  // Where they're looking
+
+  // Automation
+  automationStep    Int      @default(0) // Current step in automation flow
+  nextFollowUpAt    DateTime?
+
+  // Tags
+  tags              String[] @default([])
+
+  // Relations
+  messages          WhatsAppMessage[]
+
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("whatsapp_contacts")
+  @@index([status])
+  @@index([conversationState])
+  @@index([isLead])
+  @@index([nextFollowUpAt])
+}
+
+// WhatsApp Message Model
+model WhatsAppMessage {
+  id              String   @id @default(uuid())
+
+  // Contact
+  contactId       String
+  contact         WhatsAppContact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  // Message details
+  messageId       String?  // WhatsApp message ID
+  direction       String   // "INBOUND" or "OUTBOUND"
+  messageType     String   // "TEXT", "IMAGE", "VIDEO", "DOCUMENT", "TEMPLATE", "INTERACTIVE"
+  content         String   @db.Text
+  mediaUrl        String?  // For media messages
+  caption         String?  // Media caption
+
+  // Template info (for outbound)
+  templateName    String?
+  templateParams  Json?
+
+  // Status tracking
+  status          String   @default("PENDING") // PENDING, SENT, DELIVERED, READ, FAILED
+  deliveredAt     DateTime?
+  readAt          DateTime?
+  failedReason    String?
+
+  // Interactive message data
+  buttonResponse  String?  // User's button click
+  listResponse    String?  // User's list selection
+
+  // Metadata
+  metadata        Json?    // WhatsApp webhook payload
+
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("whatsapp_messages")
+  @@index([contactId])
+  @@index([direction])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// WhatsApp Template Model
+model WhatsAppTemplate {
+  id            String   @id @default(uuid())
+  name          String   @unique // Template name (e.g., "welcome_message")
+  category      String   // "MARKETING", "UTILITY", "AUTHENTICATION"
+  language      String   @default("en") // Language code
+
+  // Template content
+  header        String?  // Optional header text
+  body          String   // Main message body with {{variables}}
+  footer        String?  // Optional footer
+
+  // Template components
+  buttons       Json?    // Button configuration
+
+  // Approval status
+  status        String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  rejectionReason String?
+
+  // Usage
+  usageCount    Int      @default(0)
+  lastUsedAt    DateTime?
+
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("whatsapp_templates")
+  @@index([status])
+  @@index([category])
+}
+
+// WhatsApp Broadcast Campaign
+model WhatsAppBroadcast {
+  id            String   @id @default(uuid())
+  name          String   // Campaign name
+  description   String?
+
+  // Targeting
+  templateId    String
+  templateParams Json   // Variables for template
+  segments      String[] @default([]) // Target segments
+  filters       Json?    // Additional filters
+
+  // Recipients
+  totalRecipients Int    @default(0)
+  sentCount     Int      @default(0)
+  deliveredCount Int     @default(0)
+  readCount     Int      @default(0)
+  failedCount   Int      @default(0)
+
+  // Scheduling
+  status        String   @default("DRAFT") // DRAFT, SCHEDULED, SENDING, COMPLETED, CANCELLED
+  scheduledAt   DateTime?
+  startedAt     DateTime?
+  completedAt   DateTime?
+
+  // Created by
+  createdById   String?
+
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("whatsapp_broadcasts")
+  @@index([status])
+  @@index([scheduledAt])
+}
+
+// WhatsApp Automation Flow
+model WhatsAppAutomation {
+  id            String   @id @default(uuid())
+  name          String   // Flow name
+  trigger       String   // "NEW_CONTACT", "KEYWORD", "TIME", "EVENT"
+  triggerValue  String?  // Keyword or event name
+
+  // Flow steps (array of actions)
+  steps         Json[]   // [{ type: "SEND_MESSAGE", content: "...", delay: 0 }, ...]
+
+  // Status
+  isActive      Boolean  @default(true)
+
+  // Stats
+  triggerCount  Int      @default(0)
+
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("whatsapp_automations")
+  @@index([trigger])
+  @@index([isActive])
+}
