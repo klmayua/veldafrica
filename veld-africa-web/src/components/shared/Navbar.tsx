@@ -33,10 +33,12 @@ export function Navbar() {
             <Image
               src="/partners/VELD_Logo.png"
               alt="VELD AFRICA"
-              width={600}
-              height={150}
+              width={1536}
+              height={1024}
               className="h-12 sm:h-14 md:h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
               priority
+              quality={100}
+              unoptimized
             />
           </Link>
 
