@@ -76,6 +76,9 @@ model User {
   createdNewsletters Newsletter[] @relation("NewsletterCreatedBy")
   updatedNewsletters Newsletter[] @relation("NewsletterUpdatedBy")
 
+  // Investor profile
+  investor      Investor?
+
   // Timestamps
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
@@ -190,6 +193,13 @@ model Property {
   // SEO
   metaTitle   String?
   metaDescription String?
+
+  // Relations
+  investments   Investment[]
+  portfolioItems PortfolioItem[]
+  virtualTour  VirtualTour?
+  nftTitle     NFTTitle?
+  aiRecommendations AIRecommendation[]
 
   // Timestamps
   createdAt   DateTime       @default(now())
@@ -533,4 +543,441 @@ model WhatsAppAutomation {
   @@map("whatsapp_automations")
   @@index([trigger])
   @@index([isActive])
+}
+
+// Payment Provider Enum
+enum PaymentProvider {
+  PAYSTACK
+  FLUTTERWAVE
+}
+
+// Payment Status Enum
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  SUCCESS
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+// Payment Method Enum
+enum PaymentMethod {
+  CARD
+  BANK_TRANSFER
+  USSD
+  MOBILE_MONEY
+  QR_CODE
+}
+
+// Investor Role Enum
+enum InvestorRole {
+  BASIC
+  PREMIUM
+  VIP
+  INSTITUTIONAL
+}
+
+// Investor Profile Model
+model Investor {
+  id                String        @id @default(uuid())
+  userId            String        @unique
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Profile
+  role              InvestorRole  @default(BASIC)
+  phone             String?
+  address           String?
+  city              String?
+  country           String        @default("Nigeria")
+  dateOfBirth       DateTime?
+  occupation        String?
+  company           String?
+  annualIncome      String?       // Income bracket
+
+  // Verification
+  isVerified        Boolean       @default(false)
+  kycStatus         String        @default("PENDING") // PENDING, APPROVED, REJECTED
+  kycSubmittedAt    DateTime?
+  kycApprovedAt       DateTime?
+  idDocumentUrl       String?
+  proofOfAddressUrl   String?
+
+  // Investment tracking
+  totalInvested     Float         @default(0)
+  totalReturns      Float         @default(0)
+  activeInvestments Int           @default(0)
+
+  // Relations
+  investments       Investment[]
+  transactions      PaymentTransaction[]
+  portfolioItems    PortfolioItem[]
+  documents         InvestorDocument[]
+
+  // Preferences
+  preferences       Json          @default("{}") // { riskTolerance, investmentGoals, notifications }
+
+  // Timestamps
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@map("investors")
+  @@index([kycStatus])
+  @@index([role])
+}
+
+// Investment Model (Property Bookings/Investments)
+model Investment {
+  id              String   @id @default(uuid())
+
+  // Relations
+  investorId      String
+  investor        Investor @relation(fields: [investorId], references: [id], onDelete: Cascade)
+  propertyId      String
+  property        Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  // Investment details
+  type            String   // "BOOKING", "FULL_PAYMENT", "INSTALLMENT", "CO_OWNERSHIP"
+  status          String   @default("PENDING") // PENDING, ACTIVE, COMPLETED, CANCELLED
+
+  // Financials
+  amount          Float
+  currency        String   @default("NGN")
+  commission      Float    @default(0)
+  fees            Float    @default(0)
+
+  // Installment tracking
+  isInstallment   Boolean  @default(false)
+  totalInstallments Int    @default(1)
+  paidInstallments  Int    @default(0)
+  installmentAmount Float?
+  nextPaymentDue  DateTime?
+
+  // Returns tracking (for agro/income properties)
+  expectedReturns Float?
+  actualReturns   Float    @default(0)
+  lastPayoutAt    DateTime?
+  nextPayoutAt    DateTime?
+
+  // Documents
+  agreementUrl    String?
+  receiptUrl      String?
+
+  // Metadata
+  metadata        Json?    // Additional investment details
+
+  // Relations
+  transactions    PaymentTransaction[]
+  payouts         Payout[]
+
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  completedAt     DateTime?
+
+  @@map("investments")
+  @@index([investorId])
+  @@index([propertyId])
+  @@index([status])
+}
+
+// Payment Transaction Model
+model PaymentTransaction {
+  id              String          @id @default(uuid())
+
+  // Relations
+  investorId      String
+  investor        Investor        @relation(fields: [investorId], references: [id], onDelete: Cascade)
+  investmentId    String?
+  investment      Investment?     @relation(fields: [investmentId], references: [id], onDelete: SetNull)
+
+  // Payment details
+  provider        PaymentProvider
+  method          PaymentMethod?
+  status          PaymentStatus   @default(PENDING)
+
+  // Amounts
+  amount          Float
+  currency        String          @default("NGN")
+  fees            Float           @default(0)
+  netAmount       Float
+
+  // Provider specific
+  providerReference String?       // Paystack/Flutterwave transaction reference
+  providerTransactionId String?   // Provider's transaction ID
+
+  // Verification
+  isVerified      Boolean         @default(false)
+  verifiedAt      DateTime?
+  verificationResponse Json?        // Full provider response
+
+  // Webhook tracking
+  webhookReceived Boolean         @default(false)
+  webhookPayload  Json?
+
+  // Metadata
+  metadata        Json?           // Additional payment details
+  description     String?
+
+  // IP/Security
+  ipAddress       String?
+  userAgent       String?
+
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@map("payment_transactions")
+  @@index([investorId])
+  @@index([investmentId])
+  @@index([status])
+  @@index([providerReference])
+  @@index([createdAt])
+}
+
+// Portfolio Item (Current holdings)
+model PortfolioItem {
+  id              String    @id @default(uuid())
+
+  // Relations
+  investorId      String
+  investor        Investor  @relation(fields: [investorId], references: [id], onDelete: Cascade)
+  propertyId      String
+  property        Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  // Holdings
+  shares          Float     @default(1) // For fractional ownership
+  totalValue      Float
+  currentValue    Float     // Updated based on appreciation
+  unrealizedGain  Float     @default(0)
+
+  // Income tracking
+  totalIncome     Float     @default(0)
+  lastIncomeAt    DateTime?
+
+  // Status
+  status          String    @default("ACTIVE") // ACTIVE, SOLD, PENDING
+
+  // Documents
+  titleDeedUrl    String?
+
+  // Timestamps
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  soldAt          DateTime?
+
+  @@map("portfolio_items")
+  @@index([investorId])
+  @@index([propertyId])
+  @@index([status])
+}
+
+// Payout Model (Dividends/Returns)
+model Payout {
+  id              String      @id @default(uuid())
+
+  // Relations
+  investmentId    String
+  investment      Investment  @relation(fields: [investmentId], references: [id], onDelete: Cascade)
+
+  // Payout details
+  amount          Float
+  currency        String      @default("NGN")
+  type            String      // "DIVIDEND", "RENTAL_INCOME", "CAPITAL_RETURN", "BONUS"
+  period          String?     // "2024-Q1", "January 2024" etc
+
+  // Status
+  status          String      @default("PENDING") // PENDING, PAID, FAILED
+  paidAt          DateTime?
+
+  // Payment method
+  paymentMethod   String?
+  paymentReference String?
+
+  // Timestamps
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@map("payouts")
+  @@index([investmentId])
+  @@index([status])
+  @@index([paidAt])
+}
+
+// Investor Document Model
+model InvestorDocument {
+  id              String   @id @default(uuid())
+
+  // Relations
+  investorId      String
+  investor        Investor @relation(fields: [investorId], references: [id], onDelete: Cascade)
+
+  // Document details
+  name            String
+  type            String   // "AGREEMENT", "RECEIPT", "STATEMENT", "CERTIFICATE", "KYC"
+  url             String
+  fileSize        Int?
+  mimeType        String?
+
+  // Metadata
+  description     String?
+  metadata        Json?
+
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("investor_documents")
+  @@index([investorId])
+  @@index([type])
+}
+
+// Virtual Tour Model
+model VirtualTour {
+  id              String    @id @default(uuid())
+
+  // Relations
+  propertyId      String    @unique
+  property        Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  // Tour details
+  title           String
+  description     String?
+
+  // 360 Media
+  panoImageUrl    String?   // Equirectangular panorama image
+  panoVideoUrl    String?   // 360 video (if available)
+
+  // Multiple scenes for complex tours
+  scenes          Json[]    // [{ id, title, panoUrl, thumbnail, hotspots: [] }]
+
+  // Hotspots
+  hotspots        Json[]    // [{ sceneId, pitch, yaw, type, text, targetSceneId }]
+
+  // Configuration
+  config          Json      // { autoRotate, speed, zoom, showControls }
+
+  // Status
+  isActive        Boolean   @default(true)
+  viewCount       Int       @default(0)
+
+  // Timestamps
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("virtual_tours")
+  @@index([propertyId])
+  @@index([isActive])
+}
+
+// NFT Property Title Model
+model NFTTitle {
+  id              String    @id @default(uuid())
+
+  // Relations
+  propertyId      String    @unique
+  property        Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  // NFT Details
+  tokenId         String    @unique // Blockchain token ID
+  contractAddress String    // Smart contract address
+  network         String    @default("polygon") // ethereum, polygon, binance
+  chainId         Int       @default(137) // Polygon mainnet
+
+  // Token URI (metadata)
+  metadataUrl     String    // IPFS/Arweave URL to NFT metadata
+  imageUrl        String?   // NFT image
+
+  // Ownership
+  ownerWallet     String    // Current owner's wallet address
+  ownerInvestorId String?
+  ownerInvestor   Investor? @relation(fields: [ownerInvestorId], references: [id], onDelete: SetNull)
+
+  // Property details snapshot
+  propertyDetails Json      // Snapshot of property data at mint time
+
+  // Status
+  status          String    @default("MINTED") // MINTED, TRANSFERRED, FROZEN, BURNED
+
+  // Transaction history
+  mintTxHash      String    // Mint transaction hash
+  mintedAt        DateTime  @default(now())
+  transfers       NFTTransfer[]
+
+  // Verification
+  isVerified      Boolean   @default(false)
+  verifiedAt      DateTime?
+
+  // Timestamps
+  updatedAt       DateTime  @updatedAt
+
+  @@map("nft_titles")
+  @@index([tokenId])
+  @@index([contractAddress])
+  @@index([ownerWallet])
+  @@index([status])
+}
+
+// NFT Transfer History
+model NFTTransfer {
+  id              String    @id @default(uuid())
+
+  // Relations
+  nftId           String
+  nft             NFTTitle  @relation(fields: [nftId], references: [id], onDelete: Cascade)
+
+  // Transfer details
+  fromWallet      String
+  toWallet        String
+  txHash          String    @unique
+
+  // Sale info (if applicable)
+  salePrice       Float?
+  currency        String    @default("MATIC")
+  platformFee     Float     @default(0)
+
+  // Timestamps
+  transferredAt   DateTime  @default(now())
+
+  @@map("nft_transfers")
+  @@index([nftId])
+  @@index([txHash])
+  @@index([transferredAt])
+}
+
+// AI Recommendation Model
+model AIRecommendation {
+  id              String   @id @default(uuid())
+
+  // Relations
+  investorId      String
+  investor        Investor @relation(fields: [investorId], references: [id], onDelete: Cascade)
+
+  // Recommendation
+  propertyId      String
+  property        Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  // AI Scoring
+  score           Float    // 0-100 match score
+  reasons         String[] // Why this was recommended
+  factors         Json     // { priceMatch, locationMatch, roiPotential, etc }
+
+  // Status
+  isViewed        Boolean  @default(false)
+  isSaved         Boolean  @default(false)
+  isDismissed     Boolean  @default(false)
+  isInvested      Boolean  @default(false)
+
+  // Timestamps
+  createdAt       DateTime @default(now())
+  viewedAt        DateTime?
+  savedAt         DateTime?
+  dismissedAt     DateTime?
+  investedAt      DateTime?
+
+  @@map("ai_recommendations")
+  @@index([investorId])
+  @@index([propertyId])
+  @@index([score])
+  @@index([createdAt])
 }
