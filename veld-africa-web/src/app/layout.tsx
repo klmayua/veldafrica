@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Navbar } from "@/components/shared/Navbar";
+import { NavDock } from "@/components/shared/NavDock";
+import { Chatbot } from "@/components/shared/Chatbot";
 
 export const metadata: Metadata = {
   title: "VELD AFRICA | Gateway to African Real Estate Investment",
@@ -58,7 +61,10 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
+        <Navbar />
         {children}
+        <NavDock />
+        <Chatbot />
       </body>
     </html>
   );

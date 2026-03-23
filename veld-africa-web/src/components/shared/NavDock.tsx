@@ -1,10 +1,19 @@
 "use client";
 
+import * as React from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Building2, Users, Headphones, Mail, Menu, X } from "lucide-react";
 import Link from "next/link";
-import * as React from "react";
+import {
+  Home,
+  Building2,
+  Users,
+  Headphones,
+  Mail,
+  Menu,
+  X,
+} from "lucide-react";
 
 const navLinks = [
   { name: "Home", href: "#home", icon: Home },
@@ -15,11 +24,32 @@ const navLinks = [
 ];
 
 export function NavDock() {
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const dockRef = React.useRef<HTMLDivElement>(null);
 
+  // Scroll behavior - hide on scroll down, show on scroll up
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsVisible(false);
+        setIsOpen(false);
+      } else {
+        setIsVisible(true);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
+
   // Close on outside click
-  React.useEffect(() => {
+  useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (dockRef.current && !dockRef.current.contains(e.target as Node)) {
         setIsOpen(false);
@@ -39,7 +69,16 @@ export function NavDock() {
   }, [isOpen]);
 
   return (
-    <div ref={dockRef} className="fixed bottom-6 right-6 z-50 flex items-end gap-3">
+    <motion.div
+      ref={dockRef}
+      initial={{ y: 100, opacity: 0 }}
+      animate={{
+        y: isVisible ? 0 : 100,
+        opacity: isVisible ? 1 : 0,
+      }}
+      transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+      className="fixed bottom-6 right-6 z-50 flex items-end gap-3 md:bottom-8 md:right-8"
+    >
       {/* Expanded Nav Items - fans out above the button */}
       <AnimatePresence>
         {isOpen && (
@@ -48,7 +87,7 @@ export function NavDock() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute bottom-16 right-16 flex flex-col gap-1.5"
+            className="absolute bottom-16 right-0 flex flex-col gap-1.5"
           >
             {navLinks.map((link, index) => {
               const Icon = link.icon;
@@ -63,12 +102,19 @@ export function NavDock() {
                   <Link
                     href={link.href}
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center gap-2.5 pl-4 pr-5 py-2 rounded-full bg-white/80 backdrop-blur-xl border border-white/60 shadow-lg shadow-[#1B4D3E]/10 hover:bg-white hover:shadow-xl hover:border-[#C9A227]/30 transition-all duration-200 group whitespace-nowrap"
+                    className={cn(
+                      "flex items-center gap-2.5 pl-4 pr-5 py-2 rounded-full transition-all duration-200 group whitespace-nowrap",
+                      "bg-white/90 backdrop-blur-xl border border-white/60",
+                      "shadow-lg shadow-[#1B4D3E]/10",
+                      "hover:bg-white hover:shadow-xl hover:border-[#C9A227]/30"
+                    )}
                   >
                     <div className="w-7 h-7 rounded-full bg-[#1B4D3E]/8 flex items-center justify-center group-hover:bg-[#C9A227]/15 transition-colors">
                       <Icon className="w-3.5 h-3.5 text-[#1B4D3E] group-hover:text-[#C9A227] transition-colors" />
                     </div>
-                    <span className="text-sm font-medium text-[#1A1A1A]">{link.name}</span>
+                    <span className="text-sm font-medium text-[#1A1A1A]">
+                      {link.name}
+                    </span>
                   </Link>
                 </motion.div>
               );
@@ -77,36 +123,48 @@ export function NavDock() {
         )}
       </AnimatePresence>
 
-      {/* Dock Toggle Button - sits to the LEFT of the chat icon */}
+      {/* Dock Toggle Button */}
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
         aria-label={isOpen ? "Close navigation" : "Open navigation"}
         aria-expanded={isOpen}
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.3, delay: 0.3 }}
+        transition={{ duration: 0.3, delay: 0.2 }}
         className={cn(
           "w-12 h-12 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300",
           "backdrop-blur-xl border",
           isOpen
             ? "bg-[#C9A227] text-white border-[#C9A227]/50 shadow-[#C9A227]/30"
-            : "bg-white/80 text-[#1B4D3E] border-white/60 hover:bg-white hover:shadow-xl"
+            : "bg-white/90 text-[#1B4D3E] border-white/60 hover:bg-white hover:shadow-xl"
         )}
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.92 }}
       >
         <AnimatePresence mode="wait">
           {isOpen ? (
-            <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.15 }}>
+            <motion.div
+              key="close"
+              initial={{ rotate: -90, opacity: 0 }}
+              animate={{ rotate: 0, opacity: 1 }}
+              exit={{ rotate: 90, opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
               <X className="w-5 h-5" />
             </motion.div>
           ) : (
-            <motion.div key="menu" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.15 }}>
+            <motion.div
+              key="menu"
+              initial={{ rotate: 90, opacity: 0 }}
+              animate={{ rotate: 0, opacity: 1 }}
+              exit={{ rotate: -90, opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
               <Menu className="w-5 h-5" />
             </motion.div>
           )}
         </AnimatePresence>
       </motion.button>
-    </div>
+    </motion.div>
   );
 }
