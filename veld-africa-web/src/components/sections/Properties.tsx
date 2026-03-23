@@ -152,7 +152,7 @@ export function Properties() {
       : properties.filter((p) => p.category === activeCategory);
 
   return (
-    <section id="properties" className="py-24 bg-[#FAF9F6]">
+    <section id="properties" className="py-10 sm:py-14 bg-[#FAF9F6]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -160,17 +160,16 @@ export function Properties() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-8"
         >
-          <span className="inline-block px-4 py-1.5 rounded-full bg-[#1B4D3E]/10 text-[#1B4D3E] text-sm font-medium mb-4">
+          <span className="inline-block px-3 py-1.5 rounded-full bg-[#1B4D3E]/10 text-[#1B4D3E] text-xs sm:text-sm font-medium mb-3">
             Our Portfolio
           </span>
-          <h2 className="font-display text-4xl sm:text-5xl font-bold text-[#1A1A1A] mb-4">
+          <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-[#1A1A1A] mb-2">
             Investment<span className="text-[#C9A227]"> Opportunities</span>
           </h2>
-          <p className="text-lg text-[#4A5568] max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base text-[#4A5568] max-w-2xl mx-auto">
             Explore our curated selection of premium properties across Africa and beyond.
-            From smart homes to agro-investments, find your perfect asset.
           </p>
         </motion.div>
 
@@ -180,7 +179,7 @@ export function Properties() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="flex flex-wrap justify-center gap-3 mb-12"
+          className="flex flex-wrap justify-center gap-2 mb-8"
         >
           {categories.map((category) => {
             const Icon = category.icon;
@@ -190,7 +189,7 @@ export function Properties() {
                 onClick={() => setActiveCategory(category.id)}
                 aria-pressed={activeCategory === category.id}
                 className={cn(
-                  "flex items-center gap-2 px-5 py-2.5 rounded-full font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#C9A227] focus:ring-offset-2",
+                  "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#C9A227] focus:ring-offset-2",
                   activeCategory === category.id
                     ? "bg-[#1B4D3E] text-white shadow-lg shadow-[#1B4D3E]/25"
                     : "bg-white text-[#4A5568] hover:bg-[#1B4D3E]/5 border border-[#1B4D3E]/10"
@@ -204,7 +203,7 @@ export function Properties() {
         </motion.div>
 
         {/* Properties Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredProperties.map((property, index) => (
             <motion.div
               key={property.id}
@@ -294,7 +293,7 @@ export function Properties() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mt-12"
+          className="text-center mt-8"
         >
           <button
             className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-[#1B4D3E] text-white font-medium hover:bg-[#2D6A4F] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#C9A227] focus:ring-offset-4 hover:shadow-lg hover:shadow-[#1B4D3E]/25 hover:-translate-y-0.5"

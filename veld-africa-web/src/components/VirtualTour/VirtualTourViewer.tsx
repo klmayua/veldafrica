@@ -201,7 +201,7 @@ export function VirtualTourViewer({
             <div className="absolute inset-0 flex items-center justify-center bg-black">
               <div className="text-center">
                 <div className="w-16 h-16 border-4 border-[#1B4D3E] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                <p className="text-white">Loading 360° View...\u003c/p>
+                <p className="text-white">Loading 360° View...</p>
               </div>
             </div>
           )}
@@ -346,7 +346,7 @@ export function VirtualTourEmbed({
         <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
           <div className="text-center">
             <div className="w-10 h-10 border-3 border-[#1B4D3E] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-            <p className="text-white/60 text-sm">Loading 360° View...\u003c/p>
+            <p className="text-white/60 text-sm">Loading 360° View...</p>
           </div>
         </div>
       )}

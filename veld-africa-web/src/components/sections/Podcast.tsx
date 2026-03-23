@@ -50,14 +50,14 @@ const platforms = [
 
 export function Podcast() {
   return (
-    <section id="podcast" className="py-24 bg-[#FAF9F6] relative overflow-hidden">
+    <section id="podcast" className="py-10 sm:py-14 bg-[#FAF9F6] relative overflow-hidden">
       {/* Decorative Elements */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-[#C9A227]/5 rounded-full blur-3xl" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#1B4D3E]/5 rounded-full blur-3xl" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Header */}
-        <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">
+        <div className="grid lg:grid-cols-2 gap-8 items-center mb-6">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -104,7 +104,7 @@ export function Podcast() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="mb-12"
+          className="mb-6"
         >
           <GlassCard variant="dark" className="overflow-hidden">
             <div className="grid md:grid-cols-2">
@@ -207,7 +207,7 @@ export function Podcast() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mt-12"
+          className="text-center mt-8"
         >
           <p className="text-[#4A5568] mb-4">
             Subscribe to get new episodes delivered to your inbox

@@ -224,9 +224,9 @@ export function Chatbot() {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-[#1B4D3E] text-white shadow-2xl flex items-center justify-center hover:bg-[#2D6A4F] transition-colors"
+            className="fixed bottom-6 right-[4.75rem] z-50 w-12 h-12 rounded-full bg-[#1B4D3E] text-white shadow-2xl flex items-center justify-center hover:bg-[#2D6A4F] transition-colors backdrop-blur-xl border border-[#2D6A4F]/30"
           >
-            <MessageCircle className="w-6 h-6" />
+            <MessageCircle className="w-5 h-5" />
           </motion.button>
         )}
       </AnimatePresence>
@@ -237,10 +237,10 @@ export function Chatbot() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-6 right-6 z-50 w-full max-w-sm"
+            className="fixed bottom-20 right-6 z-50 w-full max-w-sm"
           >
-            <GlassCard variant="light" className="flex flex-col max-h-[80vh]">
-              <div className="flex items-center justify-between p-4 bg-[#1B4D3E] text-white">
+            <GlassCard variant="light" className="flex flex-col max-h-[70vh] shadow-2xl">
+              <div className="flex items-center justify-between p-3 bg-[#1B4D3E] text-white rounded-t-2xl">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
                     <Bot className="w-5 h-5" />
@@ -268,7 +268,7 @@ export function Chatbot() {
 
               {!isMinimized && (
                 <>
-                  <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[400px]">
+                  <div className="flex-1 overflow-y-auto p-3 space-y-3 max-h-[350px]">
                     {showLeadForm ? (
                       <form onSubmit={submitLead} className="space-y-3 p-3 bg-[#1B4D3E]/5 rounded-xl">
                         <p className="text-sm font-medium text-[#1A1A1A]">Get a call from our team:</p>
@@ -361,7 +361,7 @@ export function Chatbot() {
                     )}
                   </div>
 
-                  <div className="p-4 border-t border-[#1B4D3E]/10">
+                  <div className="p-3 border-t border-[#1B4D3E]/10">
                     <div className="flex gap-2">
                       <input
                         type="text"

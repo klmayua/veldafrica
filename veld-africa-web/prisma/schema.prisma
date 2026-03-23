@@ -613,6 +613,8 @@ model Investor {
   transactions      PaymentTransaction[]
   portfolioItems    PortfolioItem[]
   documents         InvestorDocument[]
+  nftTitles         NFTTitle[]
+  aiRecommendations AIRecommendation[]
 
   // Preferences
   preferences       Json          @default("{}") // { riskTolerance, investmentGoals, notifications }

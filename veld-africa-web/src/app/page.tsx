@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/shared/Navbar";
+import { NavDock } from "@/components/shared/NavDock";
 import { Chatbot } from "@/components/shared/Chatbot";
 import { About } from "@/components/sections/About";
 import { Footer } from "@/components/sections/Footer";
@@ -19,6 +20,7 @@ export default function Home() {
       <Newsletter />
       <Partners />
       <Footer />
+      <NavDock />
       <Chatbot />
     </main>
   );

@@ -42,7 +42,7 @@ export function Newsletter() {
   };
 
   return (
-    <section id="newsletter" className="py-24 bg-gradient-to-br from-[#1B4D3E] to-[#0D2820] relative overflow-hidden">
+    <section id="newsletter" className="py-10 sm:py-14 bg-gradient-to-br from-[#1B4D3E] to-[#0D2820] relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0">
         <div className="absolute top-1/2 left-1/4 w-96 h-96 bg-[#C9A227]/10 rounded-full blur-3xl" />
@@ -50,17 +50,17 @@ export function Newsletter() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="space-y-8"
+            className="space-y-6"
           >
             <div>
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-gold text-[#C9A227] text-sm font-medium mb-6">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#C9A227]/10 backdrop-blur-xl border border-[#C9A227]/20 text-[#C9A227] text-sm font-medium mb-4">
                 <Mail className="w-4 h-4" />
                 The Gateway Newsletter
               </span>
@@ -119,7 +119,7 @@ export function Newsletter() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <GlassCard variant="light" className="p-8">
+            <GlassCard variant="light" className="p-6 sm:p-8">
               {!isSubmitted ? (
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="text-center mb-8">

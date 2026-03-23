@@ -6,15 +6,15 @@ import { ArrowRight, Building2, Home, Leaf, MapPin, TrendingUp } from "lucide-re
 import Image from "next/image";
 
 const stats = [
-  { value: "₦5B+", label: "Property Value Managed" },
-  { value: "500+", label: "Happy Investors" },
-  { value: "12+", label: "Cities Covered" },
-  { value: "98%", label: "Client Satisfaction" },
+  { value: "N5B+", label: "Property Value" },
+  { value: "500+", label: "Investors" },
+  { value: "12+", label: "Cities" },
+  { value: "98%", label: "Satisfaction" },
 ];
 
 export function Hero() {
   return (
-    <section id="home" className="relative min-h-screen flex items-center overflow-hidden">
+    <section id="home" className="relative min-h-[90vh] flex items-center overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 gradient-hero">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920')] bg-cover bg-center opacity-20" />
@@ -35,25 +35,25 @@ export function Hero() {
         />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <div className="grid lg:grid-cols-2 gap-8 items-center">
           {/* Left Content */}
-          <div className="space-y-8">
+          <div className="space-y-5">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-gold"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#C9A227]/10 backdrop-blur-xl border border-[#C9A227]/20"
             >
               <span className="w-2 h-2 rounded-full bg-[#C9A227] animate-pulse" />
-              <span className="text-[#C9A227] text-sm font-medium">Africa&apos;s Premier Property Gateway</span>
+              <span className="text-[#C9A227] text-xs sm:text-sm font-medium">Africa&apos;s Premier Property Gateway</span>
             </motion.div>
 
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="font-display text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight"
+              className="font-display text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-[1.1]"
             >
               Building
               <span className="block text-[#C9A227]">Generational Wealth</span>
@@ -64,7 +64,7 @@ export function Hero() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-lg text-[#D4C5B0] max-w-xl leading-relaxed"
+              className="text-sm sm:text-base text-[#D4C5B0] max-w-xl leading-relaxed"
             >
               VELD AFRICA bridges the gap between you and premium African real estate.
               From Lagos to Dubai, invest in verified properties that appreciate for generations.
@@ -74,13 +74,13 @@ export function Hero() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-wrap gap-4"
+              className="flex flex-wrap gap-3"
             >
-              <Button size="lg" className="group">
+              <Button size="md" className="group">
                 Explore Properties
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
-              <Button variant="outline" size="lg" className="border-white/30 text-white hover:bg-white/10">
+              <Button variant="outline" size="md" className="border-white/20 text-white hover:bg-white/10 backdrop-blur-sm">
                 Watch Our Story
               </Button>
             </motion.div>
@@ -90,7 +90,7 @@ export function Hero() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-8 border-t border-white/10"
+              className="grid grid-cols-4 gap-4 pt-6 border-t border-white/10"
             >
               {stats.map((stat, index) => (
                 <motion.div
@@ -100,8 +100,8 @@ export function Hero() {
                   transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
                   className="text-center"
                 >
-                  <div className="text-2xl sm:text-3xl font-bold text-white">{stat.value}</div>
-                  <div className="text-sm text-[#D4C5B0]">{stat.label}</div>
+                  <div className="text-xl sm:text-2xl font-bold text-white">{stat.value}</div>
+                  <div className="text-xs text-[#D4C5B0]">{stat.label}</div>
                 </motion.div>
               ))}
             </motion.div>
@@ -119,7 +119,7 @@ export function Hero() {
               <motion.div
                 animate={{ y: [0, -10, 0] }}
                 transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                className="glass rounded-3xl p-6 max-w-md mx-auto"
+                className="rounded-3xl p-5 max-w-md mx-auto bg-white/8 backdrop-blur-2xl border border-white/15 shadow-2xl"
               >
                 <div className="relative aspect-[4/3] rounded-2xl overflow-hidden mb-4">
                   <Image
@@ -128,35 +128,35 @@ export function Hero() {
                     fill
                     className="object-cover"
                   />
-                  <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1 rounded-full glass-light">
-                    <MapPin className="w-4 h-4 text-[#1B4D3E]" />
-                    <span className="text-sm font-medium text-[#1B4D3E]">Lekki, Lagos</span>
+                  <div className="absolute top-3 left-3 flex items-center gap-2 px-3 py-1 rounded-full bg-white/80 backdrop-blur-xl border border-white/50">
+                    <MapPin className="w-3.5 h-3.5 text-[#1B4D3E]" />
+                    <span className="text-xs font-medium text-[#1B4D3E]">Lekki, Lagos</span>
                   </div>
-                  <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-[#C9A227]">
-                    <span className="text-sm font-bold text-white">Featured</span>
+                  <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-[#C9A227] shadow-lg">
+                    <span className="text-xs font-bold text-white">Featured</span>
                   </div>
                 </div>
-                <div className="space-y-3">
-                  <h3 className="text-xl font-bold text-white">Smart Luxury Villa</h3>
-                  <div className="flex items-center gap-4 text-[#D4C5B0]">
+                <div className="space-y-2">
+                  <h3 className="text-lg font-bold text-white">Smart Luxury Villa</h3>
+                  <div className="flex items-center gap-3 text-sm text-[#D4C5B0]">
                     <span className="flex items-center gap-1">
-                      <Home className="w-4 h-4" /> 5 Beds
+                      <Home className="w-3.5 h-3.5" /> 5 Beds
                     </span>
                     <span className="flex items-center gap-1">
-                      <Building2 className="w-4 h-4" /> 4 Baths
+                      <Building2 className="w-3.5 h-3.5" /> 4 Baths
                     </span>
                     <span className="flex items-center gap-1">
-                      <Leaf className="w-4 h-4" /> Smart Home
+                      <Leaf className="w-3.5 h-3.5" /> Smart Home
                     </span>
                   </div>
                   <div className="flex items-center justify-between pt-3 border-t border-white/10">
                     <div>
-                      <span className="text-sm text-[#D4C5B0]">Starting from</span>
-                      <div className="text-2xl font-bold text-[#C9A227]">₦150M</div>
+                      <span className="text-xs text-[#D4C5B0]">Starting from</span>
+                      <div className="text-xl font-bold text-[#C9A227]">N150M</div>
                     </div>
                     <div className="flex items-center gap-1 text-emerald-400">
                       <TrendingUp className="w-4 h-4" />
-                      <span className="text-sm">+12%</span>
+                      <span className="text-sm font-medium">+12%</span>
                     </div>
                   </div>
                 </div>
@@ -166,15 +166,15 @@ export function Hero() {
               <motion.div
                 animate={{ y: [0, 10, 0] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                className="absolute -bottom-8 -left-8 glass-light rounded-2xl p-4 shadow-xl"
+                className="absolute -bottom-6 -left-6 rounded-xl p-3 shadow-xl bg-white/90 backdrop-blur-xl border border-white/50"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-[#1B4D3E]/10 flex items-center justify-center">
-                    <TrendingUp className="w-6 h-6 text-[#1B4D3E]" />
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-lg bg-[#1B4D3E]/10 flex items-center justify-center">
+                    <TrendingUp className="w-5 h-5 text-[#1B4D3E]" />
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-[#1A1A1A]">Market Growth</div>
-                    <div className="text-lg font-bold text-[#1B4D3E]">+23% YoY</div>
+                    <div className="text-xs font-medium text-[#4A5568]">Market Growth</div>
+                    <div className="text-base font-bold text-[#1B4D3E]">+23% YoY</div>
                   </div>
                 </div>
               </motion.div>

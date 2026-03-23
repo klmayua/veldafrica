@@ -29,7 +29,7 @@ const values = [
 
 export function About() {
   return (
-    <section id="about" className="py-24 bg-gradient-to-br from-[#1B4D3E] to-[#1B4332] relative overflow-hidden">
+    <section id="about" className="py-10 sm:py-14 bg-gradient-to-br from-[#1B4D3E] to-[#1B4332] relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0" style={{
@@ -38,9 +38,9 @@ export function About() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
-          <div className="space-y-8">
+          <div className="space-y-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -94,7 +94,7 @@ export function About() {
                 { value: "500+", label: "Investors" },
                 { value: "12", label: "Cities" },
               ].map((stat, index) => (
-                <div key={stat.label} className="glass rounded-2xl p-4 text-center">
+                <div key={stat.label} className="rounded-xl p-3 text-center bg-white/5 backdrop-blur-xl border border-white/10">
                   <div className="text-3xl font-bold text-white mb-1">{stat.value}</div>
                   <div className="text-sm text-[#D4C5B0]">{stat.label}</div>
                 </div>
@@ -114,7 +114,7 @@ export function About() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                  className="glass rounded-2xl p-6 group cursor-pointer"
+                  className="rounded-2xl p-5 group cursor-pointer bg-white/5 backdrop-blur-2xl border border-white/10 shadow-lg"
                 >
                   <div className="w-12 h-12 rounded-xl bg-[#C9A227]/20 flex items-center justify-center mb-4 group-hover:bg-[#C9A227]/30 transition-colors">
                     <Icon className="w-6 h-6 text-[#C9A227]" />
